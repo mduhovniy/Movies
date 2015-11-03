@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:title="Start">
+
+    <PreferenceScreen
+        android:summary="Create new user and database"
+        android:title="New User">
+        <EditTextPreference
+            android:key="newUser"
+            android:summary="provide new user name"
+            android:title="New User" />
+        <EditTextPreference
+            android:key="newBase"
+            android:summary="enter new data base name"
+            android:title="New Base Name" />
+
+    </PreferenceScreen>
+
+    <ListPreference
+        android:defaultValue="en"
+        android:dialogTitle="Choose your language"
+        android:entries="@array/languages"
+        android:entryValues="@array/langID"
+        android:key="language"
+        android:summary="Please choose your language"
+        android:title="Language list" />
+
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="stayInSystem"
+        android:title="Always stay in system?" />
+
+
+</PreferenceScreen>
