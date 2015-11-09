@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group
+        android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/drawer_login"
+            android:title="@string/login_header"
+            android:icon="@android:drawable/ic_lock_lock"/>
+
+        <item
+            android:id="@+id/drawer_search"
+            android:title="@string/search_header"
+            android:icon="@android:drawable/ic_menu_search"/>
+
+        <item
+            android:id="@+id/drawer_edit"
+            android:title="@string/edit_header"
+            android:icon="@android:drawable/ic_menu_edit"/>
+
+        <item
+            android:id="@+id/drawer_base"
+            android:title="@string/base_header"
+            android:icon="@android:drawable/ic_menu_gallery"/>
+
+    </group>
+
+</menu>
