@@ -20,6 +20,7 @@ public class Movie {
 
     public Movie() {
         omdbId = "N/A";
+        title = "N/A";
     }
 
     public Movie(String omdbId, String title, String year, String type, String plot, String urlPoster,

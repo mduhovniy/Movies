@@ -1,87 +1,186 @@
 package info.duhovniy.maxim.movies.ui;
 
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.preference.PreferenceManager;
+import android.support.design.widget.NavigationView;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
 
-import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 
 import info.duhovniy.maxim.movies.R;
-import info.duhovniy.maxim.movies.network.SearchMovie;
-import info.duhovniy.maxim.movies.ui.stab.SlidingTabLayout;
 
 public class MainActivity extends AppCompatActivity {
 
-    /**
-     * The {@link android.support.v4.view.PagerAdapter} that will provide
-     * fragments for each of the sections. We use a
-     * {@link FragmentPagerAdapter} derivative, which will keep every
-     * loaded fragment in memory. If this becomes too memory intensive, it
-     * may be best to switch to a
-     * {@link android.support.v4.app.FragmentStatePagerAdapter}.
-     */
-    private SectionsPagerAdapter mSectionsPagerAdapter;
-
-    /**
-     * The {@link ViewPager} that will host the section contents.
-     */
-    private ViewPager mViewPager;
+    private DrawerLayout drawerLayout;
+    private ViewPager viewPager;
+    private SharedPreferences mPref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        mPref = PreferenceManager.getDefaultSharedPreferences(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.mToolbar);
         setSupportActionBar(toolbar);
-        AppBarLayout.LayoutParams params = (AppBarLayout.LayoutParams) toolbar.getLayoutParams();
-        params.setScrollFlags(0);  // clear all scroll flags
 
-        // Create the adapter that will return a fragment for each of the three
-        // primary sections of the activity.
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), this);
+        final ActionBar ab = getSupportActionBar();
+        if (ab != null) {
+            ab.setHomeAsUpIndicator(R.drawable.ic_menu);
+            ab.setDisplayHomeAsUpEnabled(true);
+        }
 
-        // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.container);
-        mViewPager.setAdapter(mSectionsPagerAdapter);
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
-        SlidingTabLayout slidingTabLayout = (SlidingTabLayout) findViewById(R.id.sliding_tabs);
-        slidingTabLayout.setViewPager(mViewPager);
+        NavigationView navView = (NavigationView) findViewById(R.id.navigation_view);
+        if (navView != null) {
+            setupDrawerContent(navView);
+        }
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        viewPager = (ViewPager) findViewById(R.id.tab_viewpager);
+        if (viewPager != null) {
+            setupViewPager(viewPager);
+        }
+
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabLayout);
+        tabLayout.setupWithViewPager(viewPager);
+
+        tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+            public void onTabSelected(TabLayout.Tab tab) {
+                viewPager.setCurrentItem(tab.getPosition());
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
             }
         });
 
+        handleIntent(getIntent());
+
     }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+
+        handleIntent(intent);
+    }
+
+    private void handleIntent(Intent intent) {
+
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+
+            SharedPreferences.Editor editor = mPref.edit();
+            String query = intent.getStringExtra(SearchManager.QUERY);
+            editor.putString(UIConstants.SEARCH_QUERY, query);
+            editor.commit();
+
+            viewPager.setCurrentItem(1);
+        }
+    }
+
+    private void setupViewPager(ViewPager viewPager) {
+        ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
+        adapter.addFrag(new LoginFragment(), getString(R.string.login_header));
+        adapter.addFrag(new SearchFragment(), getString(R.string.search_header));
+        adapter.addFrag(new EditFragment(), getString(R.string.edit_header));
+        adapter.addFrag(new DBFragment(), getString(R.string.base_header));
+        viewPager.setAdapter(adapter);
+    }
+
+    private void setupDrawerContent(NavigationView navigationView) {
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(MenuItem menuItem) {
+                menuItem.setChecked(true);
+
+                switch (menuItem.getItemId()) {
+                    case R.id.drawer_login:
+                        viewPager.setCurrentItem(0);
+                        break;
+                    case R.id.drawer_search:
+                        viewPager.setCurrentItem(1);
+                        break;
+                    case R.id.drawer_edit:
+                        viewPager.setCurrentItem(2);
+                        break;
+                    case R.id.drawer_base:
+                        viewPager.setCurrentItem(3);
+                        break;
+                }
+
+                drawerLayout.closeDrawers();
+                return true;
+            }
+        });
+    }
+
+    static class ViewPagerAdapter extends FragmentPagerAdapter {
+        private final List<Fragment> mFragmentList = new ArrayList<>();
+        private final List<String> mFragmentTitleList = new ArrayList<>();
+
+        public ViewPagerAdapter(FragmentManager manager) {
+            super(manager);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            return mFragmentList.get(position);
+        }
+
+        @Override
+        public int getCount() {
+            return mFragmentList.size();
+        }
+
+        public void addFrag(Fragment fragment, String title) {
+            mFragmentList.add(fragment);
+            mFragmentTitleList.add(title);
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return mFragmentTitleList.get(position);
+        }
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        // Associate searchable configuration with the SearchView
+        SearchManager searchManager =
+                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView =
+                (SearchView) menu.findItem(R.id.action_search).getActionView();
+        searchView.setSearchableInfo(
+                searchManager.getSearchableInfo(getComponentName()));
+
         return true;
     }
 
@@ -92,112 +191,22 @@ public class MainActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            Intent intent = new Intent(MainActivity.this, SettingsPreference.class);
-            startActivity(intent);
+        switch (id) {
+            case R.id.action_settings:
+                Intent intent = new Intent(this, SettingsPreference.class);
+                startActivity(intent);
 
-            return true;
+                return true;
+            case android.R.id.home:
+                if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                    drawerLayout.closeDrawer(GravityCompat.START);
+                } else {
+                    drawerLayout.openDrawer(GravityCompat.START);
+                }
+
+                return true;
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-
-    /**
-     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
-     * one of the sections/tabs/pages.
-     */
-    public class SectionsPagerAdapter extends FragmentPagerAdapter {
-
-        String[] myTabs = new String[]{"List", "Search", "Edit"};
-        Context context;
-
-        public SectionsPagerAdapter(FragmentManager fm, Context context) {
-            super(fm);
-            this.context = context;
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            // getItem is called to instantiate the fragment for the given page.
-            // Return a PlaceholderFragment (defined as a static inner class below).
-            return PlaceholderFragment.newInstance(position + 1);
-        }
-
-        @Override
-        public int getCount() {
-            // Show 3 total pages.
-            return 3;
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            return myTabs[position];
-        }
-    }
-
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-
-        private RecyclerView rv;
-        private LinearLayoutManager llm;
-        private SearchMovie sm;
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_SECTION_NUMBER = "section_number";
-
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
-        public static PlaceholderFragment newInstance(int sectionNumber) {
-            PlaceholderFragment fragment = new PlaceholderFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
-        }
-
-        public PlaceholderFragment() {
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            final View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-            TextView textView = (TextView) rootView.findViewById(R.id.section_label);
-            textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
-            final EditText editText = (EditText) rootView.findViewById(R.id.editText);
-            Button but = (Button) rootView.findViewById(R.id.searchButton);
-
-            rv = (RecyclerView) rootView.findViewById(R.id.rv);
-            rv.setHasFixedSize(true);
-            llm = new LinearLayoutManager(getContext());
-            rv.setLayoutManager(llm);
-
-            but.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    try {
-                        sm = new SearchMovie(editText.getText().toString(), rv, getContext());
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
- /*                   MyAdapter adapter = new MyAdapter(getContext(), R.layout.row, searchResult);
-
-                    ListView mListView = (ListView) rootView.findViewById(R.id.listView);
-                    mListView.setAdapter(adapter);
-*/
-
-                }
-            });
-            return rootView;
-        }
-
     }
 }

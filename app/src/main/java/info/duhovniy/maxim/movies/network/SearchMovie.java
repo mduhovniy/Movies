@@ -20,21 +20,17 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 
 import info.duhovniy.maxim.movies.db.Movie;
-import info.duhovniy.maxim.movies.ui.MyAdapter;
+import info.duhovniy.maxim.movies.ui.SearchListAdapter;
 
 /**
  * Created by maxduhovniy on 23/10/2015.
  */
 public class SearchMovie {
 
-    private static final String TAG = "URL Connection";
-
-    public static MyAdapter myAdapter;
-    public static ArrayList<Movie> searchResult = new ArrayList<>();
+    private SearchListAdapter searchListAdapter;
+    private ArrayList<Movie> searchResult = new ArrayList<>();
     private RecyclerView mRecyclerView;
     private Context mContext;
-    // private View mView;
-    // private RecyclerView mRecyclerView;
 
     public SearchMovie(String searchRequest, RecyclerView rv, Context context)
             throws UnsupportedEncodingException {
@@ -42,11 +38,7 @@ public class SearchMovie {
         mRecyclerView = rv;
         mContext = context;
         MyTask task = new MyTask();
-        task.execute(new String[]{url});
-    }
-
-    public ArrayList<Movie> getSearchResult() {
-        return searchResult;
+        task.execute(url);
     }
 
     class MyTask extends AsyncTask<String, Void, String> {
@@ -58,14 +50,11 @@ public class SearchMovie {
         @Override
         protected String doInBackground(String... strings) {
 
-            String response = sendHttpRequest(strings[0]);
-
-            return response;
+            return sendHttpRequest(strings[0]);
         }
 
         @Override
         protected void onPostExecute(String s) {
-            String[] posterURLs = new String[10];
 
             try {
                 JSONObject object = new JSONObject(s);
@@ -83,26 +72,29 @@ public class SearchMovie {
 
                 }
 
-                myAdapter = new MyAdapter(searchResult, mRecyclerView, mContext);
-                mRecyclerView.setAdapter(myAdapter);
+                searchListAdapter = new SearchListAdapter(searchResult, mRecyclerView, mContext);
+                mRecyclerView.setAdapter(searchListAdapter);
 
             } catch (JSONException e) {
-                e.printStackTrace();
+                Log.e(NetworkConstants.LOG_TAG, e.getMessage());
             }
 
         }
 
         private String sendHttpRequest(String urlString) {
+
             BufferedReader input = null;
             HttpURLConnection httpCon = null;
             InputStream input_stream = null;
             InputStreamReader input_stream_reader = null;
             StringBuilder response = new StringBuilder();
+
             try {
                 URL url = new URL(urlString);
                 httpCon = (HttpURLConnection) url.openConnection();
+
                 if (httpCon.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                    Log.e(TAG, "Cannot Connect to : " + urlString);
+                    Log.e(NetworkConstants.LOG_TAG, "Cannot Connect to : " + urlString);
                     return null;
                 }
 
@@ -110,12 +102,12 @@ public class SearchMovie {
                 input_stream_reader = new InputStreamReader(input_stream);
                 input = new BufferedReader(input_stream_reader);
                 String line;
-                while ((line = input.readLine()) != null) {
-                    response.append(line + "\n");
-                }
 
+                while ((line = input.readLine()) != null) {
+                    response.append(line).append("\n");
+                }
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.e(NetworkConstants.LOG_URL_TAG, e.getMessage());
             } finally {
                 if (input != null) {
                     try {
@@ -125,9 +117,7 @@ public class SearchMovie {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    if (httpCon != null) {
-                        httpCon.disconnect();
-                    }
+                    httpCon.disconnect();
                 }
             }
             return response.toString();
