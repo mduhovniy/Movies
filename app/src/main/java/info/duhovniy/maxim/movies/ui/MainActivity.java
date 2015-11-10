@@ -31,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;
     private ViewPager viewPager;
     private SharedPreferences mPref;
+    private TabLayout tabLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
             setupViewPager(viewPager);
         }
 
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabLayout);
+        tabLayout = (TabLayout) findViewById(R.id.tab_layout);
         tabLayout.setupWithViewPager(viewPager);
 
         tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -79,26 +80,26 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        handleIntent(getIntent());
+        handleSearchIntent(getIntent());
 
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
 
-        handleIntent(intent);
+        handleSearchIntent(intent);
     }
 
-    private void handleIntent(Intent intent) {
+    private void handleSearchIntent(Intent intent) {
 
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
 
-            SharedPreferences.Editor editor = mPref.edit();
-            String query = intent.getStringExtra(SearchManager.QUERY);
-            editor.putString(UIConstants.SEARCH_QUERY, query);
-            editor.commit();
-
+            tabLayout.setTabsFromPagerAdapter(viewPager.getAdapter());
             viewPager.setCurrentItem(1);
+
+            SearchFragment sf = (SearchFragment) ((ViewPagerAdapter) viewPager.getAdapter()).getItem(1);
+            sf.setQuery(intent.getStringExtra(SearchManager.QUERY));
+            sf.showSearch();
         }
     }
 

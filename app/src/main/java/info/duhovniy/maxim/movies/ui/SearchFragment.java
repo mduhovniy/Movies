@@ -1,9 +1,7 @@
 package info.duhovniy.maxim.movies.ui;
 
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -28,32 +26,37 @@ public class SearchFragment extends Fragment {
     private EditText editText;
     private Button but;
     private View rootView;
-    private SharedPreferences mPref;
+    private String mQuery;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        mPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        rootView = inflater.inflate(R.layout.fragment_search, null);
+        rootView = inflater.inflate(R.layout.fragment_search, container, false);
         editText = (EditText) rootView.findViewById(R.id.editText);
-        but = (Button) rootView.findViewById(R.id.searchButton);
+        but = (Button) rootView.findViewById(R.id.search_button);
 
         rv = (RecyclerView) rootView.findViewById(R.id.rv);
         rv.setHasFixedSize(true);
 
         rv.setLayoutManager(new LinearLayoutManager(rv.getContext()));
+
+/*
+        if(!editText.getText().equals("")) {
+            mQuery = editText.getText().toString();
+            showSearch(mQuery);
+        }
+*/
+
+
         but.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
-                    but.setVisibility(View.GONE);
-                    editText.setVisibility(View.GONE);
-                    new SearchMovie(editText.getText().toString(), rv, rootView.getContext());
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
+                but.setVisibility(View.GONE);
+                editText.setVisibility(View.GONE);
+                mQuery = editText.getText().toString();
+                showSearch();
 
             }
         });
@@ -62,13 +65,47 @@ public class SearchFragment extends Fragment {
     }
 
     @Override
-    public void onStart() {
-        if(mPref.contains(UIConstants.SEARCH_QUERY)) {
-            editText.setText(mPref.getString(UIConstants.SEARCH_QUERY, ""));
-            editText.setVisibility(View.VISIBLE);
-            but.setVisibility(View.VISIBLE);
+    public void onSaveInstanceState(Bundle state) {
+        super.onSaveInstanceState(state);
+        if (mQuery != null)
+            state.putString("info.duhovniy.maxim.movies.SEARCH_STATE", mQuery);
+    }
+
+    @Override
+    public void onViewStateRestored(Bundle state) {
+        super.onViewStateRestored(state);
+        if (state != null) {
+            mQuery = state.getString("info.duhovniy.maxim.movies.SEARCH_STATE", "");
+            showSearch();
         }
-        super.onStart();
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if (savedInstanceState != null) {
+            mQuery = savedInstanceState.getString("info.duhovniy.maxim.movies.SEARCH_STATE", "");
+            showSearch();
+        }
+
+    }
+
+    public void setQuery(String query) {
+        mQuery = query;
+    }
+
+    public void showSearch() {
+        if (rootView != null) {
+
+            try {
+                but.setVisibility(View.GONE);
+                editText.setVisibility(View.GONE);
+                new SearchMovie(mQuery, rv, rootView.getContext());
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 }
 
