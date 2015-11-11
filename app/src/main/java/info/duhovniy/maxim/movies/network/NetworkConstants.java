@@ -6,4 +6,6 @@ package info.duhovniy.maxim.movies.network;
 public class NetworkConstants {
     public static final String LOG_TAG = "Movies Network Error";
     public static final String LOG_URL_TAG = "URL Connection Error";
+    public static final String ACTION_CHECKED = "info.duhovliy.maxim.MOVIE_CHECKED";
+
 }

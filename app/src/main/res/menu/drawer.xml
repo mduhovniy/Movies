@@ -4,11 +4,6 @@
         android:checkableBehavior="single">
 
         <item
-            android:id="@+id/drawer_login"
-            android:title="@string/login_header"
-            android:icon="@android:drawable/ic_lock_lock"/>
-
-        <item
             android:id="@+id/drawer_search"
             android:title="@string/search_header"
             android:icon="@android:drawable/ic_menu_search"/>

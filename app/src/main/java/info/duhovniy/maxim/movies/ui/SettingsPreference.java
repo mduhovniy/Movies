@@ -12,6 +12,9 @@ import android.util.DisplayMetrics;
 import java.util.Locale;
 
 import info.duhovniy.maxim.movies.R;
+import info.duhovniy.maxim.movies.db.DBConstants;
+import info.duhovniy.maxim.movies.db.DBHandler;
+import info.duhovniy.maxim.movies.db.DBHelper;
 
 /**
  * Created by maxduhovniy on 30/10/2015.
@@ -28,6 +31,10 @@ public class SettingsPreference extends PreferenceActivity {
     protected void onPause() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         setLocal(prefs.getString("language", "en"));
+        String newBase = prefs.getString(DBConstants.TABLE_NAME_MARKER,
+                DBConstants.DEFAULT_TABLE_NAME);
+        DBHelper.setBaseName(newBase);
+        DBHandler.setBaseName(newBase);
         super.onPause();
     }
 

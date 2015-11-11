@@ -1,11 +1,9 @@
 package info.duhovniy.maxim.movies.db;
 
-import android.graphics.Bitmap;
-
 /**
  * Created by maxduhovniy on 10/20/15.
  */
-public class Movie {
+public class Movie  {
 
     private String omdbId;
     private String title;
@@ -15,8 +13,6 @@ public class Movie {
     private String urlPoster;
     private String urlTrailer;
     private String localPosterPath;
-    private Bitmap poster;
-    private boolean watched = false;
 
     public Movie() {
         omdbId = "N/A";
@@ -35,8 +31,8 @@ public class Movie {
         this.localPosterPath = localPosterPath;
     }
 
-    public void setPoster(Bitmap poster) {
-        this.poster = poster;
+    public void setOmdbId(String omdbId) {
+        this.omdbId = omdbId;
     }
 
     public void setTitle(String title) {
@@ -99,15 +95,4 @@ public class Movie {
         return localPosterPath;
     }
 
-    public boolean isWatched() {
-        return watched;
-    }
-
-    public Bitmap getPoster() {
-        return poster;
-    }
-
-    public void watched() {
-        this.watched = true;
-    }
 }

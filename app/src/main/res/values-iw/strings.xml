@@ -10,7 +10,7 @@
     <string name="snackbar">Snackbar</string>
     <string name="tabs">Tabs</string>
     <string name="coordinator">Coordinator Layout</string>
-    <string name="app_name">Movies</string>
+    <string name="app_name">סרטים</string>
     <string name="search_title">Search movie...</string>
     <string name="search_hint">type movie name...</string>
     <string name="login_header">Login</string>

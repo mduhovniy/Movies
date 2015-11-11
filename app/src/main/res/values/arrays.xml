@@ -11,4 +11,18 @@
         <item>iw</item>
         <item>ru</item>
     </string-array>
+
+    <string-array name="users">
+        <item>Maxim</item>
+        <item>Guest</item>
+        <item>Test</item>
+    </string-array>
+
+    <string-array name="tables">
+        <item>maxbase</item>
+        <item>guestbase</item>
+        <item>testbase</item>
+    </string-array>
+
+
 </resources>

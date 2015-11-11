@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import java.net.MalformedURLException;
@@ -14,11 +15,22 @@ import java.net.MalformedURLException;
  */
 public class DBHandler {
 
+    private static String baseName;
+
     private DBHelper dbHelper;
 
+
+    public static void setBaseName(String s) {
+        baseName = s;
+    }
+
     public DBHandler(Context context) {
-        dbHelper = new DBHelper(context, DBConstants.DATABASE_NAME, null,
-                DBConstants.DATABASE_VERSION);
+
+        baseName = PreferenceManager.getDefaultSharedPreferences(context)
+                .getString(DBConstants.TABLE_NAME_MARKER, DBConstants.DEFAULT_TABLE_NAME);
+
+        dbHelper = new DBHelper(context, DBConstants.BASE_NAME, null, DBConstants.DATABASE_VERSION);
+
     }
 
     // Get all movies
@@ -28,7 +40,7 @@ public class DBHandler {
 
         try {
             SQLiteDatabase db = dbHelper.getReadableDatabase();
-            result = db.query(DBConstants.MOVIES_TABLE_NAME, null, null, null, null, null, null);
+            result = db.query(baseName, null, null, null, null, null, null);
         } catch (SQLiteException e) {
             Log.e(DBConstants.LOG_TAG, e.getMessage());
             throw e;
@@ -38,13 +50,13 @@ public class DBHandler {
     }
 
     // Get a single movies base on OMDB ID
-    public Movie getMovie(int omdbID) throws MalformedURLException {
+    public Movie getMovie(String omdbID) throws MalformedURLException {
         Movie movie = null;
 
         try {
             SQLiteDatabase db = dbHelper.getReadableDatabase();
 
-            Cursor cursor = db.query(DBConstants.MOVIES_TABLE_NAME, null, DBConstants.MOVIE_OMDB_ID
+            Cursor cursor = db.query(baseName, null, DBConstants.MOVIE_OMDB_ID
                     + "=?", new String[]{String.valueOf(omdbID)}, null, null, null, null);
 
             // Check if the movie was found
@@ -59,7 +71,6 @@ public class DBHandler {
                         cursor.getString(8));
             }
             cursor.close();
-            db.close();
         } catch (SQLiteException e) {
             Log.e(DBConstants.LOG_TAG, e.getMessage());
             throw e;
@@ -74,7 +85,7 @@ public class DBHandler {
         try {
             SQLiteDatabase db = dbHelper.getReadableDatabase();
 
-            Cursor cursor = db.query(DBConstants.MOVIES_TABLE_NAME, null, DBConstants.MOVIE_OMDB_ID + "=?",
+            Cursor cursor = db.query(baseName, null, DBConstants.MOVIE_OMDB_ID + "=?",
                     new String[]{String.valueOf(movie.getOmdbId())}, null, null, null, null);
 
             // Check if the movie was found
@@ -82,7 +93,6 @@ public class DBHandler {
                 result = true;
             }
             cursor.close();
-            db.close();
         } catch (SQLiteException e) {
             Log.e(DBConstants.LOG_TAG, e.getMessage());
             throw e;
@@ -115,9 +125,8 @@ public class DBHandler {
 
                 // Inserting the new search_list_row, or throwing an exception if an error occurred
 
-                db.insertOrThrow(DBConstants.MOVIES_TABLE_NAME, null, newMovieValues);
+                db.insertOrThrow(baseName, null, newMovieValues);
             }
-            db.close();
         } catch (SQLiteException ex) {
             Log.e(DBConstants.LOG_TAG, ex.getMessage());
             throw ex;
@@ -129,7 +138,7 @@ public class DBHandler {
     // Update a movie
     // return true if succeed
     public int updateMovie(Movie movie, int id) {
-        int result = 0;
+        int result;
 
         try {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
@@ -144,11 +153,9 @@ public class DBHandler {
             newMovieValues.put(DBConstants.MOVIE_URL_POSTER, movie.getUrlPoster());
             newMovieValues.put(DBConstants.MOVIE_URL_TRAILER, movie.getUrlTrailer());
             newMovieValues.put(DBConstants.MOVIE_LOCAL_POSTER_PATH, movie.getLocalPosterPath());
-            newMovieValues.put(DBConstants.MOVIE_WATCHED, movie.isWatched());
 
-            result = db.update(DBConstants.MOVIES_TABLE_NAME, newMovieValues, DBConstants.MOVIE_ID
-                    + "?=", new String[]{String.valueOf(id)});
-            db.close();
+            result = db.update(baseName, newMovieValues, DBConstants.MOVIE_ID
+                    + "=?", new String[]{String.valueOf(id)});
         } catch (SQLiteException ex) {
             Log.e(DBConstants.LOG_TAG, ex.getMessage());
             throw ex;
@@ -162,9 +169,8 @@ public class DBHandler {
 
         try {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
-            db.delete(DBConstants.MOVIES_TABLE_NAME, DBConstants.MOVIE_TITLE + "?=",
+            db.delete(baseName, DBConstants.MOVIE_TITLE + "=?",
                     new String[]{String.valueOf(movie.getTitle())});
-            db.close();
         } catch (SQLiteException ex) {
             Log.e(DBConstants.LOG_TAG, ex.getMessage());
             throw ex;
@@ -178,7 +184,7 @@ public class DBHandler {
 
         try {
             SQLiteDatabase db = dbHelper.getReadableDatabase();
-            Cursor cursor = db.query(DBConstants.MOVIES_TABLE_NAME, null, DBConstants.MOVIE_TITLE + "=?",
+            Cursor cursor = db.query(baseName, null, DBConstants.MOVIE_TITLE + "=?",
                     new String[]{String.valueOf(movie.getTitle())}, null, null, null, null);
 
             // Check if the movie was found
@@ -186,7 +192,6 @@ public class DBHandler {
                 id = cursor.getInt(0);
             }
             cursor.close();
-            db.close();
         } catch (SQLiteException ex) {
             Log.e(DBConstants.LOG_TAG, ex.getMessage());
             throw ex;

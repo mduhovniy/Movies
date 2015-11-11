@@ -20,13 +20,21 @@ import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import info.duhovniy.maxim.movies.R;
+import info.duhovniy.maxim.movies.db.DBConstants;
+import info.duhovniy.maxim.movies.db.Movie;
 
-public class MainActivity extends AppCompatActivity {
+import static info.duhovniy.maxim.movies.R.drawable.*;
+
+public class MainActivity extends AppCompatActivity implements SearchFragment.onEditMovie,
+DBFragment.onEditMovieFromBase {
 
     private DrawerLayout drawerLayout;
     private ViewPager viewPager;
@@ -44,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
 
         final ActionBar ab = getSupportActionBar();
         if (ab != null) {
-            ab.setHomeAsUpIndicator(R.drawable.ic_menu);
+            ab.setHomeAsUpIndicator(ic_menu);
             ab.setDisplayHomeAsUpEnabled(true);
         }
 
@@ -52,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
 
         NavigationView navView = (NavigationView) findViewById(R.id.navigation_view);
         if (navView != null) {
+
             setupDrawerContent(navView);
         }
 
@@ -95,9 +104,10 @@ public class MainActivity extends AppCompatActivity {
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
 
             tabLayout.setTabsFromPagerAdapter(viewPager.getAdapter());
-            viewPager.setCurrentItem(1);
+            viewPager.setCurrentItem(0);
 
-            SearchFragment sf = (SearchFragment) ((ViewPagerAdapter) viewPager.getAdapter()).getItem(1);
+            SearchFragment sf = (SearchFragment) ((ViewPagerAdapter) viewPager.getAdapter())
+                    .getItem(0);
             sf.setQuery(intent.getStringExtra(SearchManager.QUERY));
             sf.showSearch();
         }
@@ -105,7 +115,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFrag(new LoginFragment(), getString(R.string.login_header));
         adapter.addFrag(new SearchFragment(), getString(R.string.search_header));
         adapter.addFrag(new EditFragment(), getString(R.string.edit_header));
         adapter.addFrag(new DBFragment(), getString(R.string.base_header));
@@ -113,23 +122,31 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupDrawerContent(NavigationView navigationView) {
+
+        View header = navigationView.inflateHeaderView(R.layout.drawer_header);
+
+        TextView user = (TextView) header.findViewById(R.id.user_name);
+        TextView base = (TextView) header.findViewById(R.id.user_base);
+        ImageView avatar = (ImageView) header.findViewById(R.id.avatar);
+
+        avatar.setImageResource(R.drawable.web_hi_res_512);
+        user.setText(mPref.getString(DBConstants.USER_NAME_MARKER, DBConstants.DEFAULT_USER_NAME));
+        base.setText(mPref.getString(DBConstants.TABLE_NAME_MARKER, DBConstants.DEFAULT_TABLE_NAME));
+
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem menuItem) {
                 menuItem.setChecked(true);
 
                 switch (menuItem.getItemId()) {
-                    case R.id.drawer_login:
+                    case R.id.drawer_search:
                         viewPager.setCurrentItem(0);
                         break;
-                    case R.id.drawer_search:
+                    case R.id.drawer_edit:
                         viewPager.setCurrentItem(1);
                         break;
-                    case R.id.drawer_edit:
-                        viewPager.setCurrentItem(2);
-                        break;
                     case R.id.drawer_base:
-                        viewPager.setCurrentItem(3);
+                        viewPager.setCurrentItem(2);
                         break;
                 }
 
@@ -137,6 +154,24 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
+    }
+
+    @Override
+    public void editMovie(Movie movie) {
+        viewPager.setCurrentItem(1);
+
+        EditFragment ef = (EditFragment) ((ViewPagerAdapter) viewPager.getAdapter()).getItem(1);
+        ef.setOmdbID(movie.getOmdbId());
+        ef.fillEditFields();
+    }
+
+    @Override
+    public void editMovieFromBase(Movie movie) {
+        viewPager.setCurrentItem(1);
+
+        EditFragment ef = (EditFragment) ((ViewPagerAdapter) viewPager.getAdapter()).getItem(1);
+        ef.setOmdbID(movie.getOmdbId());
+        ef.fillEditFields();
     }
 
     static class ViewPagerAdapter extends FragmentPagerAdapter {
