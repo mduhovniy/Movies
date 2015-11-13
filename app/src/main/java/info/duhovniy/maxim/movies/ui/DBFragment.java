@@ -29,11 +29,7 @@ import info.duhovniy.maxim.movies.db.Movie;
  */
 public class DBFragment extends Fragment {
 
-    public interface onEditMovieFromBase {
-        void editMovieFromBase(Movie movie);
-    }
-
-    private onEditMovieFromBase mEditMovieFromBase;
+    private EditFragment.onEditMovie mEditMovie;
 
     private Cursor mCursor;
     private RecyclerView rv;
@@ -45,7 +41,7 @@ public class DBFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         try {
-            mEditMovieFromBase = (onEditMovieFromBase) context;
+            mEditMovie = (EditFragment.onEditMovie) context;
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString() + " must implement onEditMovieFromBase");
         }
@@ -188,7 +184,7 @@ public class DBFragment extends Fragment {
                     if (mCursor.moveToPosition(position)) {
                         // transfer ID to MainActivity
                         try {
-                            mEditMovieFromBase.editMovieFromBase(mHandler.getMovie(mCursor.getString(1)));
+                            mEditMovie.editMovie(mHandler.getMovie(mCursor.getString(1)));
                         } catch (MalformedURLException e) {
                             e.printStackTrace();
                         }

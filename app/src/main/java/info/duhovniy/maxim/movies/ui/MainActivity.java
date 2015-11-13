@@ -31,10 +31,9 @@ import info.duhovniy.maxim.movies.R;
 import info.duhovniy.maxim.movies.db.DBConstants;
 import info.duhovniy.maxim.movies.db.Movie;
 
-import static info.duhovniy.maxim.movies.R.drawable.*;
+import static info.duhovniy.maxim.movies.R.drawable.ic_menu;
 
-public class MainActivity extends AppCompatActivity implements SearchFragment.onEditMovie,
-DBFragment.onEditMovieFromBase {
+public class MainActivity extends AppCompatActivity implements EditFragment.onEditMovie {
 
     private DrawerLayout drawerLayout;
     private ViewPager viewPager;
@@ -158,15 +157,6 @@ DBFragment.onEditMovieFromBase {
 
     @Override
     public void editMovie(Movie movie) {
-        viewPager.setCurrentItem(1);
-
-        EditFragment ef = (EditFragment) ((ViewPagerAdapter) viewPager.getAdapter()).getItem(1);
-        ef.setOmdbID(movie.getOmdbId());
-        ef.fillEditFields();
-    }
-
-    @Override
-    public void editMovieFromBase(Movie movie) {
         viewPager.setCurrentItem(1);
 
         EditFragment ef = (EditFragment) ((ViewPagerAdapter) viewPager.getAdapter()).getItem(1);

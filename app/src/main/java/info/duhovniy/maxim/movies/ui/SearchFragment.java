@@ -45,11 +45,7 @@ import info.duhovniy.maxim.movies.network.NetworkConstants;
  */
 public class SearchFragment extends Fragment {
 
-    public interface onEditMovie {
-        void editMovie(Movie movie);
-    }
-
-    private onEditMovie mEditMovie;
+    private EditFragment.onEditMovie mEditMovie;
 
     private RecyclerView rv;
     private EditText queryText;
@@ -61,7 +57,7 @@ public class SearchFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         try {
-            mEditMovie = (onEditMovie) context;
+            mEditMovie = (EditFragment.onEditMovie) context;
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString() + " must implement onEditMovie!");
         }

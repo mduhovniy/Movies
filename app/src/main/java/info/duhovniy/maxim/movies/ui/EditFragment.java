@@ -43,6 +43,10 @@ public class EditFragment extends Fragment {
     private Movie mMovie;
     private DBHandler mHandler;
 
+    public interface onEditMovie {
+        void editMovie(Movie movie);
+    }
+
     public void setOmdbID(String omdbID) {
         mOmdbID = omdbID;
     }
