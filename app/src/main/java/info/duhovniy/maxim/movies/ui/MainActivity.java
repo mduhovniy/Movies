@@ -117,6 +117,7 @@ public class MainActivity extends AppCompatActivity implements EditFragment.onEd
         adapter.addFrag(new SearchFragment(), getString(R.string.search_header));
         adapter.addFrag(new EditFragment(), getString(R.string.edit_header));
         adapter.addFrag(new DBFragment(), getString(R.string.base_header));
+        adapter.addFrag(new MapFragment(), getString(R.string.map_header));
         viewPager.setAdapter(adapter);
     }
 
