@@ -88,18 +88,12 @@ public class MainActivity extends AppCompatActivity implements EditFragment.onEd
             }
         });
 
-        handleSearchIntent(getIntent());
+//        handleSearchIntent(getIntent());
 
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
-
-        handleSearchIntent(intent);
-    }
-
-    private void handleSearchIntent(Intent intent) {
-
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
 
             tabLayout.setTabsFromPagerAdapter(viewPager.getAdapter());
@@ -207,6 +201,7 @@ public class MainActivity extends AppCompatActivity implements EditFragment.onEd
                 (SearchView) menu.findItem(R.id.action_search).getActionView();
         searchView.setSearchableInfo(
                 searchManager.getSearchableInfo(getComponentName()));
+        searchView.setSubmitButtonEnabled(true);
 
         return true;
     }

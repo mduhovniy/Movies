@@ -28,7 +28,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onOpen(SQLiteDatabase db) {
-        String cmd = "CREATE TABLE " + baseName + " (" + DBConstants.MOVIE_ID +
+        String cmd = "CREATE TABLE IF NOT EXISTS " + baseName + " (" + DBConstants.MOVIE_ID +
                 " INTEGER PRIMARY KEY, " + DBConstants.MOVIE_OMDB_ID + " TEXT, " +
                 DBConstants.MOVIE_TITLE + " TEXT," + DBConstants.MOVIE_YEAR + " TEXT, " +
                 DBConstants.MOVIE_TYPE + " TEXT, " + DBConstants.MOVIE_PLOT + " TEXT, " +
